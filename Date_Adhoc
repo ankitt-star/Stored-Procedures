@@ -1,0 +1,71 @@
+CREATE OR REPLACE PROCEDURE EDW_MARKETING_PRD.XFRM.USP_POPULATE_DATE_ADHOC()
+RETURNS VARCHAR
+LANGUAGE SQL
+EXECUTE AS OWNER
+AS '
+BEGIN
+
+    CREATE OR REPLACE TABLE RPT.ADHOC_DATE AS
+    SELECT
+        T."Id",
+
+        T."Fiscal Year Name",
+        CONCAT(''FY'', T."Fiscal Year")                         AS "Fiscal Year",
+        T."Fiscal Quarter Name",
+        CONCAT(''FQ'', T."Fiscal Quarter")                      AS "Fiscal Quarter",
+        CONCAT(''FM'', LPAD(T."Fiscal Month",2,''0''))            AS "Fiscal Month",
+        T."Fiscal Week Name",
+        CONCAT(''FW'', LPAD(T."Fiscal Week",2,''0''))             AS "Fiscal Week",
+
+        T."Date",
+
+        CONCAT(''FDM'', LPAD(T."Fiscal Day Of Month",2,''0''))     AS "Fiscal Day of Month",
+        T."Fiscal Year Month",
+        CONCAT(''FDW'', T."Fiscal Day Of Week")                  AS "Fiscal Day of Week",
+        CONCAT(''FDQ'', LPAD(T."Fiscal Day Of Quarter",2,''0''))   AS "Fiscal Day of Quarter",
+        CONCAT(''FDY'', LPAD(T."Fiscal Day Of Year",3,''0''))      AS "Fiscal Day of Year",
+        CONCAT(''FM '', T."Fiscal Month Name")                   AS "Fiscal Month Name",
+
+        T."Last Year Id",
+        T."Last Year Date",
+        T."Last Year Unshifted Id",
+
+        T."Calendar Year",
+        T."Calendar Month",
+        T."Calendar Month Name",
+        T."Calendar Quarter",
+        T."Calendar Week",
+        T."Calendar Week Name",
+
+        T."Fiscal Week Sequence Number",
+        T."Completed Week Flag",
+
+        DX."LLY Shift Date Key"                                AS "LLY Date ID",
+
+        T."Last Modified Date",
+
+        T."Fiscal Year"                                        AS "Fiscal Year Num",
+        T."Fiscal Month"                                       AS "Fiscal Month Num",
+        T."Fiscal Quarter"                                     AS "Fiscal Quarter Num",
+        T."Fiscal Week"                                        AS "Fiscal Week Num",
+
+        (T."Fiscal Year"*100 + T."Fiscal Month")              AS FY_FM_KEY,
+
+        CASE
+            WHEN T."Fiscal Week" = 1
+                THEN T."Fiscal Year" - 1
+            ELSE T."Fiscal Year"
+        END                                                   AS PREV_WEEK_FISCAL_YEAR,
+
+        CASE
+            WHEN T."Completed Week Flag" = 1 THEN ''Yes''
+            ELSE ''No''
+        END                                                   AS "Completed Week Flag Yes/No"
+
+    FROM RPT."DATE" T
+    LEFT JOIN EDWPRD.RPT."Date Exp" DX
+        ON DX."Date Key" = T."Id";
+
+    RETURN ''Table RPT.DATE_ADHOC created and Transaction_Final FY2023 dates nullified successfully.'';
+END;
+';
