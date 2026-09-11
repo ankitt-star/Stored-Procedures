@@ -1,0 +1,115 @@
+create or replace view EDW_MARKETING_PRD.ANALYTICS.FACT_COUPON_TABLE(
+	"Master Customer Key",
+	"Issue Date Id",
+	"Brand",
+	"Redemption Brand",
+	"Loyalty Tier",
+	"Brand Sort",
+	"Code",
+	"Reward Name",
+	"Status",
+	"Loyalty Coupon Id",
+	"Expiration Date Id",
+	"Used Date Id",
+	"Transaction Date Id",
+	"Employee Flag",
+	"Organization ID",
+	"Days to Usage",
+	"Distribution Channel",
+	"Status Type",
+	"DMD Revenue",
+	"DMD Units",
+	"DMD Cost Basis",
+	"Rewards Amount",
+	"Transactions",
+	"JCCC Tender",
+	"JCCC Cardholder",
+	"JCCC Customers / Cardholders filter",
+	"Employee Status at Transaction",
+	FP
+) as
+with pw_transaction as
+(
+    select
+    distinct
+    "Master Customer Key",
+    "Transaction ID"
+    from
+    rpt."Transaction"
+),
+mw_transaction as
+(
+    select
+    distinct
+    "Master Customer Key",
+    "Transaction ID"
+    from
+    rpt."Transaction MW"
+)
+select
+"Master Customer Key",
+"Issue Date Id",
+"Brand",
+"Redemption Brand",
+"Loyalty Tier",
+"Brand Sort",
+"Code",
+"Reward Name",
+"Status",
+"Loyalty Coupon Id",
+"Expiration Date Id",
+"Used Date Id",
+"Transaction Date Id",
+"Employee Flag",
+"Organization ID",
+"Days to Usage",
+"Distribution Channel",
+"Status Type",
+"DMD Revenue",
+"DMD Units",
+"DMD Cost Basis",
+"Rewards Amount",
+"Transactions",
+"JCCC Tender",
+"JCCC Cardholder",
+"JCCC Customers / Cardholders filter",
+ NULL AS "Employee Status at Transaction",
+ NULL AS FP
+from
+rpt."PASSPORT COUPON STATS AND USAGE" cp
+left join pw_transaction ts on cp."Transactions" = ts."Transaction ID"
+
+union
+
+select
+"Master Customer Key",
+"Issue Date Id",
+"Brand",
+"Redemption Brand",
+"Loyalty Tier",
+"Brand Sort",
+"Code",
+"Reward Name",
+"Status",
+"Loyalty Coupon Id",
+"Expiration Date Id",
+"Used Date Id",
+"Transaction Date Id",
+"Employee Flag",
+"Organization Id",
+"Days to Usage",
+"Distribution Channel",
+"Status Type",
+"DMD Revenue",
+"DMD Units",
+"DMD Cost Basis",
+"Rewards Amount",
+"Transactions",
+null as "JCCC Tender",
+null as "JCCC Cardholder",
+null as "JCCC Customers / Cardholders filter",
+NULL AS "Employee Status at Transaction",
+NULL AS FP
+from
+rpt."MADEWELL COUPON STATS AND USAGE" cp
+left join mw_transaction ts on cp."Transactions" = ts."Transaction ID";
